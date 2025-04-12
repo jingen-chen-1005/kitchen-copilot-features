@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Additional features alarm</title>
+  <style>
+    /* Basic Reset */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      line-height: 1.5;
+      padding-bottom: 20px;
+      min-height: 100px;
+    }
+
+    /* Header Section */
+    .header {
+      background-color: #5e4cad;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+    }
+    
+    .header .icon {
+      font-size: 24px;
+      cursor: pointer;
+      padding: 10px;
+      position: right;
+      margin-right: 5px;
+      
+    }
+    
+    .header .title {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    /* Container */
+    .container {
+      background-color: #fff;
+      margin: 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 16px;
+      position:sticky;
+      bottom: 0px;
+  
+    }
+
+    /* Section Header */
+    .section-header h2 {
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+
+    .section-header p {
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+
+    .indicator-bar {
+      height: 20px;
+      border-radius: 10px;
+      background: linear-gradient(to right, #476B3F 50%, #FFC107 25%, #E53935 25%);
+      margin: 16px 0;
+    }
+
+    /* Image styles */
+    .section-header .cheesecakeimg {
+        size: 5px;
+        width: 50%;
+        height: auto;
+        margin-left: 5px;
+    }
+
+    /* Button Styles */
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn.prev {
+      background-color: #fff;
+      border: 2px solid #476B3F;
+      color: #476B3F;
+    }
+
+    .btn.prev:hover {
+      background-color: #f0f0f0;
+    }
+
+    .btn.next {
+      background-color: #476B3F;
+      color: #fff;
+    }
+
+    .btn.next:hover {
+      background-color: #3a5730;
+    }
+    
+    .timer{
+        padding: 10px 40%;
+        border: none;
+        border-radius: 8px;
+        
+     
+      
+    }
+
+    .btn.timer {
+        background-color: #fff;
+      border: 2px solid #476B3F;
+      color: #476B3F;
+      
+
+    }
+    .btn.timer:hover {
+        background-color: #f0f0f0;
+      }
+
+      #timer-display {
+        font-size: 3rem;
+        margin: 20px 0;
+        font-family: monospace;
+      }
+    
+      button {
+        padding: 10px 20px;
+        margin: 0 5px;
+        font-size: 1rem;
+        cursor: pointer;
+        background: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+      }
+      button:disabled {
+        background: #cccccc;
+        cursor: not-allowed;
+      }
+      #sound-control {
+        margin-top: 20px;
+      }
+
+
+ 
+    
+    /* Responsive adjustments for smaller screens */
+    @media (max-width: 360px) {
+      .header .title {
+        font-size: 18px;
+      }
+      .header .icon {
+        font-size: 20px;
+      }
+      .section-header h2 {
+        font-size: 20px;
+      }
+      .section-header p,
+      .btn,
+      .all-veggies button {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Mobile-friendly Header -->
+  <header class="header">
+    <div class="icon">&larr;</div>
+    <div class="title">Cooking Mode</div>
+    <div class="icon"><i style= "margin:10px;"class="fa-regular fa-message"></i>
+    <i style= "margin:10px;" class="fa-regular fa-bell"></i>
+    <i style= "margin:10px;" class="fa-solid fa-bars"></i></div>
+  </header>
+
+  
+  
+  <div class="section-header">
+    <p style="font-size:15px; margin:5px">STEP 3</p>
+    <h2 style="font-size:25px; margin:5px">Preparation</h2>
+    <br>
+
+    <p style="font-size:20px; margin:5px;">Put the cheesecake inside the refrigerator for 2 hours.</p>
+    <img class="cheesecakeimg" src="/Users/endyxd/Downloads/cheesecake.jpeg" >
+  </div>
+
+  <!-- Main Content Container -->
+  <div class="container">
+    <!-- Progress -->
+    <div class="indicator-bar"></div>
+
+    <div class="timer">
+      <button id="start-timer" class="btn timer">
+        <i class="fa-solid fa-clock fa-2xl"></i>
+      </button>
+      <div id="timer-display" style="text-align: center; font-size: 18px; margin-top: 8px;">02:00:00</div>
+    </div>
+  
+
+  <div id="sound-control">
+    <label>
+      <input type="checkbox" id="sound-toggle" checked> Enable sound notification
+    </label>
+  </div>
+
+
+      
+    </div>
+    <!-- Navigation Buttons -->
+    <div class="button-group">
+      <button class="btn prev">Previous step</button>
+      <button class="btn next">Next step</button>
+    </div>
+  </div>
+
+
+  <script>
+    const startTimerButton = document.getElementById("start-timer");
+    const alarmSound = new Audio("/Users/endyxd/Downloads/alarm-clock-90867.mp3");
+    const timerDisplay = document.getElementById("timer-display");
+    
+
+    let totalTime = 10; // 10 seconds
+    let timeLeft = totalTime;
+    let timerInterval = null;
+
+    function formatTime(seconds) {
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const secs = seconds % 60;
+      return `${hours.toString().padStart(2, "0")}:${minutes
+        .toString()
+        .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    }
+
+    function updateTimerDisplay() {
+      timerDisplay.textContent = formatTime(timeLeft);
+    }
+
+    function startTimer() {
+      if (timerInterval) return;
+
+      timerInterval = setInterval(() => {
+        if (timeLeft > 0) {
+          timeLeft--;
+          updateTimerDisplay();
+        } else {
+          clearInterval(timerInterval);
+          timerInterval = null;
+         
+
+          setTimeout(() => {
+            const soundToggle = document.getElementById("sound-toggle");
+            if (soundToggle.checked) {
+              alarmSound.currentTime = 0;
+              alarmSound.play().catch((error) => {
+                console.warn("Sound playback failed:", error);
+              });
+            }
+          }, 500); // Delay before sound plays after the alert
+        }
+      }, 1000);
+    }
+
+    startTimerButton.addEventListener("click", startTimer);
+
+    updateTimerDisplay();
+  </script>
+  
+</body>
+</html>

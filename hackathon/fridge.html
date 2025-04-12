@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Fridge Inventory</title>
+    <style>
+        :root {
+            --veggie-color: #8bc34a;
+            --meat-color: #f44336;
+            --other-color: #ff9800;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        
+        .fridge-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .category-section {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .category-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid;
+        }
+        
+        .vegetables .category-header {
+            color: var(--veggie-color);
+            border-color: var(--veggie-color);
+        }
+        
+        .meat .category-header {
+            color: var(--meat-color);
+            border-color: var(--meat-color);
+        }
+        
+        .other .category-header {
+            color: var(--other-color);
+            border-color: var(--other-color);
+        }
+        
+        .category-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+        
+        .item-form {
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .save-btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .vegetables .save-btn {
+            background-color: var(--veggie-color);
+            color: white;
+        }
+        
+        .meat .save-btn {
+            background-color: var(--meat-color);
+            color: white;
+        }
+        
+        .other .save-btn {
+            background-color: var(--other-color);
+            color: white;
+        }
+        
+        .save-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .item-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .item-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            position: relative;
+        }
+        
+        .vegetables .item-card {
+            border-left: 4px solid var(--veggie-color);
+        }
+        
+        .meat .item-card {
+            border-left: 4px solid var(--meat-color);
+        }
+        
+        .other .item-card {
+            border-left: 4px solid var(--other-color);
+        }
+        
+        .item-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #777;
+            margin-left: 10px;
+        }
+        
+        .item-actions button:hover {
+            color: #333;
+        }
+        
+        .empty-message {
+            color: #777;
+            text-align: center;
+            padding: 20px 0;
+            font-style: italic;
+        }
+        
+        .expiry-info {
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .expiry-soon {
+            color: orange;
+        }
+        
+        .expiry-critical {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Smart Fridge Inventory</h1>
+    
+    <div class="fridge-container">
+        <!-- Vegetables Section -->
+        <div class="category-section vegetables">
+            <div class="category-header">
+                <span class="category-icon">🥦</span>
+                <h2>Vegetables</h2>
+            </div>
+            
+            <div class="item-form">
+                <div class="form-group">
+                    <label for="veggie-name">Item Name</label>
+                    <input type="text" id="veggie-name" placeholder="e.g. Carrots, Broccoli">
+                </div>
+                <div class="form-group">
+                    <label for="veggie-quantity">Quantity</label>
+                    <input type="text" id="veggie-quantity" placeholder="e.g. 3, 1 bunch">
+                </div>
+                <button class="save-btn" id="save-veggie">Add to Fridge</button>
+            </div>
+            
+            <ul class="item-list" id="veggie-list">
+                <li class="empty-message">No vegetables added yet</li>
+            </ul>
+        </div>
+        
+        <!-- Meat Section -->
+        <div class="category-section meat">
+            <div class="category-header">
+                <span class="category-icon">🍗</span>
+                <h2>Meat</h2>
+            </div>
+            
+            <div class="item-form">
+                <div class="form-group">
+                    <label for="meat-name">Item Name</label>
+                    <input type="text" id="meat-name" placeholder="e.g. Chicken, Beef">
+                </div>
+                <div class="form-group">
+                    <label for="meat-quantity">Quantity</label>
+                    <input type="text" id="meat-quantity" placeholder="e.g. 2 steaks, 500g">
+                </div>
+                <div class="form-group">
+                    <label for="meat-location">Fridge Location</label>
+                    <select id="meat-location">
+                        <option value="upper">⬆ UPPER FREEZER (5 days)</option>
+                        <option value="lower">⬇ LOWER FREEZER (1 month)</option>
+                    </select>
+                </div>
+                <button class="save-btn" id="save-meat">Add to Fridge</button>
+            </div>
+            
+            <ul class="item-list" id="meat-list">
+                <li class="empty-message">No meat added yet</li>
+            </ul>
+        </div>
+        
+        <!-- Other Section -->
+        <div class="category-section other">
+            <div class="category-header">
+                <span class="category-icon">🥛</span>
+                <h2>Other Items</h2>
+            </div>
+            
+            <div class="item-form">
+                <div class="form-group">
+                    <label for="other-name">Item Name</label>
+                    <input type="text" id="other-name" placeholder="e.g. Milk, Eggs">
+                </div>
+                <div class="form-group">
+                    <label for="other-quantity">Quantity</label>
+                    <input type="text" id="other-quantity" placeholder="e.g. 1L, 12 count">
+                </div>
+                <div class="form-group">
+                    <label for="other-expiry">Expiry Date</label>
+                    <input type="date" id="other-expiry" name="expiry">
+                </div>
+                <button class="save-btn" id="save-other">Add to Fridge</button>
+            </div>
+            
+            <ul class="item-list" id="other-list">
+                <li class="empty-message">No items added yet</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Request notification permission
+            if ("Notification" in window && Notification.permission !== "granted") {
+                Notification.requestPermission();
+            }
+
+            // DOM Elements
+            const veggieForm = document.querySelector('.vegetables .item-form');
+            const meatForm = document.querySelector('.meat .item-form');
+            const otherForm = document.querySelector('.other .item-form');
+            
+            const veggieList = document.getElementById('veggie-list');
+            const meatList = document.getElementById('meat-list');
+            const otherList = document.getElementById('other-list');
+
+            // Set minimum date for expiry date picker to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('other-expiry').min = today;
+
+            // Load saved items
+            loadAllItems();
+
+            // Form submission handlers
+            veggieForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveItem('vegetables', 'veggie', veggieList);
+            });
+
+            meatForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveItem('meat', 'meat', meatList);
+            });
+
+            otherForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveItem('other', 'other', otherList);
+            });
+
+            // Button click handlers
+            document.getElementById('save-veggie').addEventListener('click', function() {
+                saveItem('vegetables', 'veggie', veggieList);
+            });
+
+            document.getElementById('save-meat').addEventListener('click', function() {
+                saveItem('meat', 'meat', meatList);
+            });
+
+            document.getElementById('save-other').addEventListener('click', function() {
+                saveItem('other', 'other', otherList);
+            });
+
+            // Function to save an item
+            function saveItem(category, prefix, listElement) {
+                const nameInput = document.getElementById(`${prefix}-name`);
+                const quantityInput = document.getElementById(`${prefix}-quantity`);
+                const name = nameInput.value.trim();
+                const quantity = quantityInput.value.trim();
+
+                if (!name) {
+                    alert('Please enter an item name');
+                    return;
+                }
+
+                // Create item object with common properties
+                const item = {
+                    id: Date.now(),
+                    name,
+                    quantity: quantity || '1',
+                    category,
+                    added: new Date().toISOString()
+                };
+
+                // Add category-specific properties
+                if (category === 'meat') {
+                    const location = document.getElementById('meat-location').value;
+                    item.location = location;
+                    
+                    // Set expiry based on location
+                    const now = new Date();
+                    if (location === 'upper') {
+                        // Upper freezer: 5 days
+                        const expiryDate = new Date(now);
+                        expiryDate.setDate(now.getDate() + 5);
+                        item.expiryDate = expiryDate.toISOString().split('T')[0];
+                        
+                        // Schedule reminder for 4th day (96 hours from now)
+                        scheduleReminder(new Date(now.getTime() + 96 * 60 * 60 * 1000), 
+                            `Reminder: Meat in upper freezer (${name}) expires tomorrow!`);
+                    } else {
+                        // Lower freezer: 1 month
+                        const expiryDate = new Date(now);
+                        expiryDate.setMonth(now.getMonth() + 1);
+                        item.expiryDate = expiryDate.toISOString().split('T')[0];
+                        
+                        // Schedule reminder 3 days before expiry
+                        const reminderDate = new Date(expiryDate);
+                        reminderDate.setDate(expiryDate.getDate() - 3);
+                        scheduleReminder(reminderDate, 
+                            `Reminder: Meat in lower freezer (${name}) expires in 3 days!`);
+                    }
+                } else if (category === 'vegetables') {
+                    // Vegetables: 3 days
+                    const now = new Date();
+                    const expiryDate = new Date(now);
+                    expiryDate.setDate(now.getDate() + 3);
+                    item.expiryDate = expiryDate.toISOString().split('T')[0];
+                    
+                    // Schedule reminder in 48 hours
+                    scheduleReminder(new Date(now.getTime() + 48 * 60 * 60 * 1000), 
+                        `Reminder: Check your vegetables (${name}) - they'll expire soon!`);
+                } else if (category === 'other') {
+                    const expiryDate = document.getElementById('other-expiry').value;
+                    item.expiryDate = expiryDate;
+                    
+                    // Schedule reminder 1 day before expiry
+                    const reminderDate = new Date(expiryDate);
+                    reminderDate.setDate(reminderDate.getDate() - 1);
+                    scheduleReminder(reminderDate, 
+                        `Reminder: Your item (${name}) expires tomorrow!`);
+                }
+
+                // Save to localStorage
+                const items = JSON.parse(localStorage.getItem(`fridge_${category}`)) || [];
+                items.push(item);
+                localStorage.setItem(`fridge_${category}`, JSON.stringify(items));
+
+                // Add to UI
+                addItemToList(item, listElement);
+
+                // Clear form
+                nameInput.value = '';
+                quantityInput.value = '';
+                if (category === 'other') {
+                    document.getElementById('other-expiry').value = '';
+                }
+            }
+
+            // Function to add item to the list in UI
+            function addItemToList(item, listElement) {
+                // Remove empty message if it exists
+                if (listElement.querySelector('.empty-message')) {
+                    listElement.innerHTML = '';
+                }
+
+                const itemElement = document.createElement('li');
+                itemElement.className = 'item-card';
+                itemElement.dataset.id = item.id;
+
+                // Calculate days until expiry
+                let expiryInfo = '';
+                if (item.expiryDate) {
+                    const expiryDate = new Date(item.expiryDate);
+                    const today = new Date();
+                    const diffTime = expiryDate - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    let expiryText;
+                    if (diffDays < 0) {
+                        expiryText = `<span class="expiry-critical">EXPIRED ${Math.abs(diffDays)} days ago</span>`;
+                    } else if (diffDays === 0) {
+                        expiryText = `<span class="expiry-critical">Expires TODAY!</span>`;
+                    } else if (diffDays <= 3) {
+                        expiryText = `<span class="expiry-soon">Expires in ${diffDays} days</span>`;
+                    } else {
+                        expiryText = `Expires in ${diffDays} days`;
+                    }
+                    
+                    expiryInfo = `<div class="expiry-info">${expiryText} (${expiryDate.toLocaleDateString()})</div>`;
+                }
+
+                // Create item info HTML
+                let itemInfoHTML = `
+                    <div class="item-info">
+                        <strong>${item.name}</strong>
+                        ${item.quantity ? `<span> - ${item.quantity}</span>` : ''}
+                        ${item.location ? `<div>Location: ${item.location === 'upper' ? 'Upper Freezer' : 'Lower Freezer'}</div>` : ''}
+                        ${expiryInfo}
+                    </div>
+                `;
+
+                itemElement.innerHTML = itemInfoHTML + `
+                    <div class="item-actions">
+                        <button class="delete-btn" title="Delete">🗑️</button>
+                    </div>
+                `;
+
+                // Add to top of list
+                listElement.insertBefore(itemElement, listElement.firstChild);
+
+                // Add delete event listener
+                itemElement.querySelector('.delete-btn').addEventListener('click', function() {
+                    deleteItem(item.category, item.id, listElement);
+                });
+            }
+
+            // Function to delete an item
+            function deleteItem(category, id, listElement) {
+                if (confirm('Are you sure you want to remove this item?')) {
+                    // Remove from localStorage
+                    let items = JSON.parse(localStorage.getItem(`fridge_${category}`)) || [];
+                    items = items.filter(item => item.id !== id);
+                    localStorage.setItem(`fridge_${category}`, JSON.stringify(items));
+
+                    // Remove from UI
+                    const itemElement = listElement.querySelector(`[data-id="${id}"]`);
+                    if (itemElement) {
+                        itemElement.remove();
+                    }
+
+                    // Show empty message if no items left
+                    if (listElement.children.length === 0) {
+                        const emptyMsg = document.createElement('li');
+                        emptyMsg.className = 'empty-message';
+                        emptyMsg.textContent = `No ${category} added yet`;
+                        listElement.appendChild(emptyMsg);
+                    }
+                }
+            }
+
+            // Function to load all items from localStorage
+            function loadAllItems() {
+                loadCategoryItems('vegetables', veggieList);
+                loadCategoryItems('meat', meatList);
+                loadCategoryItems('other', otherList);
+            }
+
+            // Function to load items for a specific category
+            function loadCategoryItems(category, listElement) {
+                const items = JSON.parse(localStorage.getItem(`fridge_${category}`)) || [];
+                
+                if (items.length > 0) {
+                    listElement.innerHTML = '';
+                    // Sort items by expiry date (soonest first)
+                    items.sort((a, b) => {
+                        if (a.expiryDate && b.expiryDate) {
+                            return new Date(a.expiryDate) - new Date(b.expiryDate);
+                        }
+                        return 0;
+                    });
+                    
+                    items.forEach(item => {
+                        addItemToList(item, listElement);
+                    });
+                }
+            }
+
+            // Function to schedule a reminder notification
+            function scheduleReminder(triggerTime, message) {
+                const now = new Date();
+                const delay = triggerTime - now;
+                if (delay > 0) {
+                    setTimeout(() => {
+                        if ("Notification" in window && Notification.permission === "granted") {
+                            new Notification("Fridge Reminder", {
+                                body: message
+                            });
+                        } else {
+                            console.log("Reminder:", message);
+                        }
+                    }, delay);
+                }
+            }
+        });
+        // Get points and country from localStorage
+        let totalPoints = parseInt(localStorage.getItem("totalPoints")) || 0;
+        let selectedCountry = localStorage.getItem("selectedCountry") || "";
+        let currentRecipe = null;
+        let hasOpenedToday = localStorage.getItem("lastOpened") === new Date().toDateString();
+      
+        document.getElementById("points").innerHTML = `Total Points: ${totalPoints}`;
+      
+        // Initialize based on stored country
+        if (selectedCountry) {
+          document.getElementById("countrySelect").value = selectedCountry;
+          document.getElementById("countrySelector").style.display = "none";
+          document.getElementById("boxContainer").style.display = "block";
+          
+          if (hasOpenedToday) {
+            document.getElementById("box").textContent = "You've already opened your box today!";
+            document.getElementById("box").style.cursor = "not-allowed";
+          }
+        }
+      
+        function setCountry() {
+          const countrySelect = document.getElementById("countrySelect");
+          selectedCountry = countrySelect.value;
+          
+          if (!selectedCountry) {
+            alert("Please select a country first!");
+            return;
+          }
+          
+          localStorage.setItem("selectedCountry", selectedCountry);
+          document.getElementById("countrySelector").style.display = "none";
+          document.getElementById("boxContainer").style.display = "block";
+        }
+      
+        document.getElementById("box").onclick = function() {
+          if (hasOpenedToday && !currentRecipe) {
+            return; // Don't allow opening again today
+          }
+          
+          const recipes = recipesByCountry[selectedCountry];
+          if (!recipes) return;
+          
+          currentRecipe = recipes[Math.floor(Math.random() * recipes.length)];
+          
+          document.getElementById("recipe").innerHTML = `
+            <h2>${currentRecipe.name}</h2>
+            <p>Earn ${currentRecipe.points} points if you cook this!</p>
+            <p><a href="${currentRecipe.link}" target="_blank">View Recipe Instructions</a></p>
+            <button onclick="completeRecipe(${currentRecipe.points})">Done Cooking</button>
+            <button class="secondary" onclick="exchangeRecipe()">Exchange for Another Dish</button>
+          `;
+          
+          // Mark as opened today
+          localStorage.setItem("lastOpened", new Date().toDateString());
+          hasOpenedToday = true;
+          document.getElementById("box").textContent = "You've opened your box today!";
+          document.getElementById("box").style.cursor = "not-allowed";
+        };
+      
+        function completeRecipe(points) {
+          totalPoints += points;
+          localStorage.setItem("totalPoints", totalPoints);
+          document.getElementById("points").innerHTML = `🎉 You've earned ${points} points! Total: ${totalPoints}`;
+          document.getElementById("recipe").innerHTML += `<p>Thanks for cooking!</p>`;
+        }
+        
+        function exchangeRecipe() {
+          if (totalPoints < 10) {
+            alert("You need at least 10 points to exchange a recipe!");
+            return;
+          }
+          
+          totalPoints -= 10;
+          localStorage.setItem("totalPoints", totalPoints);
+          document.getElementById("points").innerHTML = `Total Points: ${totalPoints} (10 points deducted for exchange)`;
+          
+          // Reset the box to allow opening again
+          hasOpenedToday = false;
+          localStorage.removeItem("lastOpened");
+          currentRecipe = null;
+          document.getElementById("recipe").innerHTML = "";
+          document.getElementById("box").textContent = "Click to open your box 📦";
+          document.getElementById("box").style.cursor = "pointer";
+        }
+        
+        // Reset daily opening at midnight
+        function checkDate() {
+          const now = new Date();
+          if (now.getHours() === 0 && now.getMinutes() === 0) {
+            localStorage.removeItem("lastOpened");
+            hasOpenedToday = false;
+            document.getElementById("box").textContent = "Click to open your box 📦";
+            document.getElementById("box").style.cursor = "pointer";
+          }
+        }
+        
+        // Check date every minute
+        setInterval(checkDate, 60000);
+    </script>
+</body>
+</html>

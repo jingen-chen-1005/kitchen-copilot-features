@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Daily Blind Box</title>
+  <style>
+    body { 
+      font-family: sans-serif; 
+      text-align: center; 
+      background: #fffbe6; 
+      padding: 2em;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .box { 
+      cursor: pointer; 
+      padding: 2em; 
+      border-radius: 1em; 
+      background: #ffcf57; 
+      box-shadow: 0 2px 10px #ccc;
+      margin: 1em auto;
+      max-width: 500px;
+    }
+    .recipe-card { 
+      margin-top: 2em;
+      padding: 1em;
+      background: white;
+      border-radius: 0.5em;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    select, button {
+      padding: 0.5em 1em;
+      font-size: 1em;
+      border-radius: 0.5em;
+      border: 1px solid #ccc;
+      margin: 0.5em;
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    button.secondary {
+      background: #f44336;
+    }
+    button.secondary:hover {
+      background: #d32f2f;
+    }
+    .country-selector {
+      margin: 2em 0;
+    }
+    .points-display {
+      font-size: 1.2em;
+      font-weight: bold;
+      margin: 1em 0;
+    }
+    
+    .action-buttons {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .link-btn {
+      background: #2196F3 !important;
+    }
+
+    .link-btn:hover {
+      background: #0b7dda !important;
+    }
+
+    .logout-btn {
+      background: #ff5722 !important;
+    }
+
+    .logout-btn:hover {
+      background: #e64a19 !important;
+    }
+    .user-info {
+      margin-bottom: 20px;
+      padding: 10px;
+      background: white;
+      border-radius: 8px;
+    }
+
+    .user-info input {
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .user-info button {
+      padding: 8px 16px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>      
+    <h1>🎁 Daily Blind Box</h1>
+    
+    <div class="country-selector" id="countrySelector">
+      <h2>Select a Cuisine Country</h2>
+      <select id="countrySelect">
+        <option value="">-- Select Country --</option>
+        <option value="italian">Italian</option>
+        <option value="japanese">Japanese</option>
+        <option value="mexican">Mexican</option>
+        <option value="indian">Indian</option>
+        <option value="thai">Thai</option>
+        <option value="chinese">Chinese</option>
+        <option value="american">American</option>
+        <option value="mediterranean">Mediterranean</option>
+      </select>
+      <button onclick="setCountry()">Confirm Country</button>
+    </div>
+    
+    <div id="boxContainer" style="display:none;">
+      <div id="box" class="box">Click to open your box 📦</div>
+      <div id="recipe" class="recipe-card"></div>
+      <div class="points-display" id="points">Total Points: 0</div>
+    </div>
+    <div class="action-buttons">
+      <button class="link-btn" onclick="window.location.href='feed.html'">Go to Feed</button>
+    </div>
+
+    <div class="user-info">
+      <input type="text" id="username" placeholder="Enter your username">
+      <button onclick="setUsername()">Set Username</button>
+    </div>
+
+    <script>
+        const recipesByCountry = {
+          italian: [
+            { name: "Pasta Carbonara", points: 25, link: "https://www.allrecipes.com/recipe/245775/spaghetti-carbonara-the-traditional-italian-recipe/" },
+            { name: "Margherita Pizza", points: 30, link: "https://www.simplyrecipes.com/recipes/homemade_margherita_pizza/" },
+            { name: "Risotto al Funghi", points: 35, link: "https://www.bbcgoodfood.com/recipes/mushroom-risotto" },
+            { name: "Tiramisu", points: 40, link: "https://www.recipetineats.com/tiramisu/" }
+          ],
+          japanese: [
+            { name: "Salmon Teriyaki Bowl", points: 30, link: "https://www.justonecookbook.com/salmon-teriyaki/" },
+            { name: "Miso Soup", points: 15, link: "https://www.justonecookbook.com/homemade-miso-soup/" },
+            { name: "Vegetable Tempura", points: 25, link: "https://www.justonecookbook.com/tempura/" },
+            { name: "Chicken Katsu Curry", points: 40, link: "https://www.bbcgoodfood.com/recipes/chicken-katsu-curry" }
+          ],
+          mexican: [
+            { name: "Chicken Tacos", points: 20, link: "https://www.allrecipes.com/recipe/242342/fiesta-slow-cooker-shredded-chicken-tacos/" },
+            { name: "Guacamole", points: 15, link: "https://www.allrecipes.com/recipe/14231/guacamole/" }
+          ],
+          indian: [
+            { name: "Butter Chicken", points: 30, link: "https://www.allrecipes.com/recipe/45957/chicken-makhani-indian-butter-chicken/" },
+            { name: "Vegetable Curry", points: 25, link: "https://www.allrecipes.com/recipe/142371/vegetable-curry/" }
+          ],
+          thai: [
+            { name: "Pad Thai", points: 30, link: "https://www.allrecipes.com/recipe/42968/pad-thai/" },
+            { name: "Green Curry", points: 35, link: "https://www.allrecipes.com/recipe/145088/thai-green-curry/" }
+          ],
+          chinese: [
+            { name: "Kung Pao Chicken", points: 30, link: "https://www.allrecipes.com/recipe/9027/kung-pao-chicken/" },
+            { name: "Dumplings", points: 25, link: "https://www.allrecipes.com/recipe/228052/chinese-pork-dumplings/" }
+          ],
+          american: [
+            { name: "Cheeseburger", points: 25, link: "https://www.allrecipes.com/recipe/25473/the-perfect-basic-burger/" },
+            { name: "Apple Pie", points: 30, link: "https://www.allrecipes.com/recipe/12682/apple-pie-by-grandma-ople/" }
+          ],
+          mediterranean: [
+            { name: "Greek Salad", points: 20, link: "https://www.allrecipes.com/recipe/214931/greek-salad/" },
+            { name: "Hummus", points: 15, link: "https://www.allrecipes.com/recipe/26558/hummus-iii/" }
+          ]
+        };
+
+        // Get points and country from localStorage
+        let userPoints = JSON.parse(localStorage.getItem("userPoints") || "{}");
+        let currentUser = localStorage.getItem("currentUser") || "";
+        let selectedCountry = localStorage.getItem("selectedCountry") || "";
+        let currentRecipe = null;
+        let lastOpenedByUser = JSON.parse(localStorage.getItem("lastOpenedByUser") || "{}");
+        let hasOpenedToday = currentUser ? (lastOpenedByUser[currentUser] === new Date().toDateString()) : false;
+    
+        function updatePointsDisplay() {
+          const points = currentUser ? (userPoints[currentUser] || 0) : 0;
+          document.getElementById("points").innerHTML = `Total Points: ${points}`;
+        }
+        updatePointsDisplay();
+    
+        // Initialize based on stored country
+        if (selectedCountry) {
+          document.getElementById("countrySelect").value = selectedCountry;
+          document.getElementById("countrySelector").style.display = "none";
+          document.getElementById("boxContainer").style.display = "block";
+          
+          if (hasOpenedToday) {
+            document.getElementById("box").textContent = "You've already opened your box today!";
+            document.getElementById("box").style.cursor = "not-allowed";
+          }
+        }
+    
+        function setCountry() {
+          const countrySelect = document.getElementById("countrySelect");
+          selectedCountry = countrySelect.value;
+          
+          if (!selectedCountry) {
+            alert("Please select a country first!");
+            return;
+          }
+          
+          localStorage.setItem("selectedCountry", selectedCountry);
+          document.getElementById("countrySelector").style.display = "none";
+          document.getElementById("boxContainer").style.display = "block";
+        }
+    
+        document.getElementById("box").onclick = function() {
+          if (hasOpenedToday && !currentRecipe) {
+            return; // Don't allow opening again today
+          }
+          
+          const recipes = recipesByCountry[selectedCountry];
+          if (!recipes) return;
+          
+          currentRecipe = recipes[Math.floor(Math.random() * recipes.length)];
+          
+          document.getElementById("recipe").innerHTML = `
+            <h2>${currentRecipe.name}</h2>
+            <p>Earn ${currentRecipe.points} points if you cook this!</p>
+            <p><a href="${currentRecipe.link}" target="_blank">View Recipe Instructions</a></p>
+            <button onclick="completeRecipe(${currentRecipe.points})">Done Cooking</button>
+            <button class="secondary" onclick="exchangeRecipe()">Exchange for Another Dish</button>
+          `;
+          
+          // Mark as opened today
+          if (currentUser) {
+            lastOpenedByUser[currentUser] = new Date().toDateString();
+            localStorage.setItem("lastOpenedByUser", JSON.stringify(lastOpenedByUser));
+            hasOpenedToday = true;
+          }
+          
+          document.getElementById("box").textContent = "You've opened your box today!";
+          document.getElementById("box").style.cursor = "not-allowed";
+        };
+    
+        function completeRecipe(points) {
+          if (!currentUser) {
+            alert("Please set your username first!");
+            return;
+          }
+          
+          if (!userPoints[currentUser]) {
+            userPoints[currentUser] = 0;
+          }
+          userPoints[currentUser] += points;
+          localStorage.setItem("userPoints", JSON.stringify(userPoints));
+          document.getElementById("points").innerHTML = `🎉 You've earned ${points} points! Total: ${userPoints[currentUser]}`;
+          document.getElementById("recipe").innerHTML += `<p>Thanks for cooking!</p>`;
+          
+          // Store the recipe name for Feed.html
+          localStorage.setItem("lastCookedRecipe", currentRecipe.name);
+        }
+        
+        function exchangeRecipe() {
+          if (!currentUser || !userPoints[currentUser]) {
+            alert("Please set your username first!");
+            return;
+          }
+          
+          if (userPoints[currentUser] < 10) {
+            alert("You need at least 10 points to exchange a recipe!");
+            return;
+          }
+          
+          userPoints[currentUser] -= 10;
+          localStorage.setItem("userPoints", JSON.stringify(userPoints));
+          document.getElementById("points").innerHTML = `Total Points: ${userPoints[currentUser]} (10 points deducted for exchange)`;
+          
+          // Reset the box to allow opening again
+          hasOpenedToday = false;
+          if (currentUser) {
+            delete lastOpenedByUser[currentUser];
+            localStorage.setItem("lastOpenedByUser", JSON.stringify(lastOpenedByUser));
+          }
+          
+          currentRecipe = null;
+          document.getElementById("recipe").innerHTML = "";
+          document.getElementById("box").textContent = "Click to open your box 📦";
+          document.getElementById("box").style.cursor = "pointer";
+        }
+        
+        // Reset daily opening at midnight
+        function checkDate() {
+          const now = new Date();
+          if (now.getHours() === 0 && now.getMinutes() === 0) {
+            const today = new Date().toDateString();
+            for (const user in lastOpenedByUser) {
+              if (lastOpenedByUser[user] !== today) {
+                delete lastOpenedByUser[user];
+              }
+            }
+            localStorage.setItem("lastOpenedByUser", JSON.stringify(lastOpenedByUser));
+            hasOpenedToday = false;
+            document.getElementById("box").textContent = "Click to open your box 📦";
+            document.getElementById("box").style.cursor = "pointer";
+          }
+        }
+        
+        // Check date every minute
+        setInterval(checkDate, 60000);
+        
+        function setUsername() {
+          const newUsername = document.getElementById("username").value.trim();
+          if (!newUsername) {
+            alert("Please enter a username");
+            return;
+          }
+          
+          // Update the hasOpenedToday status when username changes
+          if (currentUser !== newUsername) {
+            currentUser = newUsername;
+            lastOpenedByUser = JSON.parse(localStorage.getItem("lastOpenedByUser") || "{}");
+            hasOpenedToday = lastOpenedByUser[currentUser] === new Date().toDateString();
+            
+            // Update the box display for the new user
+            if (hasOpenedToday) {
+              document.getElementById("box").textContent = "You've already opened your box today!";
+              document.getElementById("box").style.cursor = "not-allowed";
+            } else {
+              document.getElementById("box").textContent = "Click to open your box 📦";
+              document.getElementById("box").style.cursor = "pointer";
+            }
+          }
+          
+          localStorage.setItem("currentUser", currentUser);
+          updatePointsDisplay();
+        }
+    </script>
+</body>
+</html>

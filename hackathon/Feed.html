@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kitchen Copilot Feed</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fff7ed;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .points {
+      font-size: 16px;
+      margin-bottom: 20px;
+      color: #444;
+    }
+
+    .form {
+      background-color: #ffffff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    input, textarea {
+      width: 90%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+
+    .post {
+      background-color: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      padding: 16px;
+      margin: 20px auto;
+      width: 90%;
+      max-width: 400px;
+      text-align: left;
+    }
+
+    .post img {
+      width: 100%;
+      border-radius: 12px;
+      margin-bottom: 10px;
+    }
+
+    .post button {
+      background-color: #ffae42;
+      border: none;
+      color: white;
+      padding: 10px 16px;
+      font-size: 14px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .post button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .title {
+      font-size: 24px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1 class="title">📰 Community Feed</h1>
+
+  <div class="points" id="pointsDisplay">Your Points: 0</div>
+
+  <!-- Create Post Form -->
+  <div class="form">
+    <h2>Create a Post</h2>
+    <input type="text" id="username" placeholder="Your Name" required /><br>
+    <input type="text" id="imageUrl" placeholder="Image URL (optional)" /><br>
+    <textarea id="caption" rows="3" placeholder="What's cooking?" required></textarea><br>
+    <button onclick="createPost()">Post</button>
+  </div>
+
+  <!-- Feed -->
+  <div id="feedContainer"></div>
+
+  <script>
+    // Initialize from localStorage
+    let posts = JSON.parse(localStorage.getItem("posts") || "[]");
+    let userPoints = JSON.parse(localStorage.getItem("userPoints") || "{}");
+    let likedByUser = JSON.parse(localStorage.getItem("likedByUser") || "[]");
+
+    function saveData() {
+      localStorage.setItem("posts", JSON.stringify(posts));
+      localStorage.setItem("userPoints", JSON.stringify(userPoints));
+      localStorage.setItem("likedByUser", JSON.stringify(likedByUser));
+    }
+
+    function updatePointsDisplay() {
+      const currentUser = document.getElementById("username").value.trim();
+      const points = userPoints[currentUser] || 0;
+      document.getElementById("pointsDisplay").innerText = currentUser ? `Hello ${currentUser}! Your Points: ${points}` : 'Your Points: 0';
+    }
+
+    function createPost() {
+      const user = document.getElementById("username").value.trim();
+      const image = document.getElementById("imageUrl").value.trim();
+      const caption = document.getElementById("caption").value.trim();
+
+      if (!user || !caption) {
+        alert("Please enter your name and a caption.");
+        return;
+      }
+
+      const newPost = {
+        id: Date.now(),
+        user,
+        image,
+        text: caption,
+        likes: 0
+      };
+
+      posts.unshift(newPost);
+      saveData();
+      renderFeed();
+      updatePointsDisplay();
+
+      document.getElementById("imageUrl").value = '';
+      document.getElementById("caption").value = '';
+    }
+
+    function likePost(postId) {
+      const currentUser = document.getElementById("username").value.trim();
+      if (!currentUser) {
+        alert("Please enter your name to like posts.");
+        return;
+      }
+
+      const likeKey = `${currentUser}_${postId}`;
+      if (likedByUser.includes(likeKey)) return;
+
+      const post = posts.find(p => p.id === postId);
+      post.likes += 1;
+      likedByUser.push(likeKey);
+
+      // Give 1 point to the post owner
+      if (!userPoints[post.user]) {
+        userPoints[post.user] = 0;
+      }
+      userPoints[post.user] += 1;
+
+      saveData();
+      renderFeed();
+      updatePointsDisplay();
+    }
+
+    function renderFeed() {
+      const feed = document.getElementById("feedContainer");
+      feed.innerHTML = '';
+      posts.forEach(post => {
+        const postDiv = document.createElement("div");
+        postDiv.className = "post";
+
+        const currentUser = document.getElementById("username").value.trim();
+        const likeKey = `${currentUser}_${post.id}`;
+        const liked = likedByUser.includes(likeKey);
+
+        postDiv.innerHTML = `
+          <strong>${post.user}</strong>
+          ${post.image ? `<img src="${post.image}" alt="Post Image" />` : ''}
+          <p>${post.text}</p>
+          <p>❤️ Likes: ${post.likes}</p>
+          <button onclick="likePost(${post.id})" ${liked ? 'disabled' : ''}>
+            ${liked ? '❤️ Liked' : '❤️ Like (+1 to creator)'}
+          </button>
+        `;
+
+        feed.appendChild(postDiv);
+      });
+    }
+
+    // Event listener to update display on name input
+    document.getElementById("username").addEventListener("input", () => {
+      updatePointsDisplay();
+      renderFeed(); // Re-render like buttons correctly
+    });
+    window.addEventListener("DOMContentLoaded", () => {
+    const recipe = localStorage.getItem("lastCookedRecipe");
+    if (recipe) {
+        document.getElementById("caption").value = `I just cooked: ${recipe}!`;
+        localStorage.removeItem("lastCookedRecipe"); // Clear after use
+    }
+    });
+
+    // Initial render
+    updatePointsDisplay();
+    renderFeed();
+  </script>
+
+</body>
+</html>
